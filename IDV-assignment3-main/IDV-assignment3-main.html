@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>垂直排列图片展示</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            padding: 30px;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+        
+        .image-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .image-item {
+            border-radius: 10px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .image-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+        }
+        
+        .image-link {
+            display: block;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        
+        .image-link img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            display: block;
+        }
+        
+        .image-caption {
+            padding: 15px;
+            background-color: #f8f9fa;
+            font-size: 16px;
+            color: #495057;
+            text-align: center;
+        }
+        
+        /* 模态窗口样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: #fff;
+            width: 90%;
+            max-width: 800px;
+            height: 80%;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .modal-header {
+            padding: 15px 20px;
+            background-color: #2c3e50;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-title {
+            font-size: 18px;
+            font-weight: 500;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            line-height: 1;
+        }
+        
+        .modal-body {
+            flex: 1;
+            border: none;
+            width: 100%;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .image-link img {
+                height: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>assignment 3</h1>
+        <div class="image-list">
+            <!-- 图片1 -->
+            <div class="image-item">
+                <a class="image-link" data-url="https://nowater0418.github.io/1/" data-title="页面1">
+                    <img src="https://raw.githubusercontent.com/nowater0418/image/main/1.jpg" alt="图片1">
+                </a>
+                <div class="image-caption">点击图片查看详情</div>
+            </div>
+            
+            <!-- 图片2 -->
+            <div class="image-item">
+                <a class="image-link" data-url="https://nowater0418.github.io/2/" data-title="页面2">
+                    <img src="https://raw.githubusercontent.com/nowater0418/image/main/2.jpg" alt="图片2">
+                </a>
+                <div class="image-caption">点击图片查看详情</div>
+            </div>
+            
+            <!-- 图片3 -->
+            <div class="image-item">
+                <a class="image-link" data-url="https://nowater0418.github.io/3/" data-title="页面3">
+                    <img src="https://raw.githubusercontent.com/nowater0418/image/main/3.jpg" alt="图片3">
+                </a>
+                <div class="image-caption">点击图片查看详情</div>
+            </div>
+            
+            <!-- 图片4 -->
+            <div class="image-item">
+                <a class="image-link" data-url="https://nowater0418.github.io/4/" data-title="页面4">
+                    <img src="https://raw.githubusercontent.com/nowater0418/image/main/4.jpg" alt="图片4">
+                </a>
+                <div class="image-caption">点击图片查看详情</div>
+            </div>
+            
+            <!-- 图片5 -->
+            <div class="image-item">
+                <a class="image-link" data-url="https://nowater0418.github.io/5/" data-title="页面5">
+                    <img src="https://raw.githubusercontent.com/nowater0418/image/main/5.jpg" alt="图片5">
+                </a>
+                <div class="image-caption">点击图片查看详情</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 模态窗口 -->
+    <div class="modal" id="imageModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">页面标题</h3>
+                <button class="close-btn" id="closeModal">&times;</button>
+            </div>
+            <iframe class="modal-body" id="modalFrame" src="" frameborder="0"></iframe>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = document.getElementById('imageModal');
+            const modalFrame = document.getElementById('modalFrame');
+            const modalTitle = document.getElementById('modalTitle');
+            const closeBtn = document.getElementById('closeModal');
+            const imageLinks = document.querySelectorAll('.image-link');
+            
+            // 为每个图片链接添加点击事件
+            imageLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const url = this.getAttribute('data-url');
+                    const title = this.getAttribute('data-title');
+                    
+                    // 设置模态窗口内容
+                    modalFrame.src = url;
+                    modalTitle.textContent = title;
+                    
+                    // 显示模态窗口
+                    modal.style.display = 'flex';
+                });
+            });
+            
+            // 关闭模态窗口
+            closeBtn.addEventListener('click', function() {
+                modal.style.display = 'none';
+                modalFrame.src = '';
+            });
+            
+            // 点击模态窗口外部关闭
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                    modalFrame.src = '';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
