@@ -1,21 +1,154 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Map and Food Rating List of Singapore Hawker Centers</title>
+    <title>Singapore PSI Data</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            max-width: 1000px;
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #2196F3;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #e3f2fd;
+        }
+        .reading-name {
+            text-align: left;
+            font-weight: bold;
+        }
+        .timestamp-info {
+            margin-bottom: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+        .error {
+            color: red;
+            padding: 20px;
+        }
+        .loading {
+            color: #666;
+            padding: 20px;
+        }
+        #refresh-btn {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        #refresh-btn:hover {
+            background-color: #45a049;
+        }
+    </style>
 </head>
 <body>
-    <h1>Map and Food Rating List of Singapore Hawker Centers</h1>
-    <h3>Project goals</h3>
-    <p>Information about Singapore's hawker centers, including their locations, stall types, and sizes, is difficult to visually represent on map apps. Even tourists and locals often struggle to locate hawker centers through map navigation, making it time-consuming for users to find their ideal options. This project aims to utilize data visualization to present the distribution, stall types, and sizes of over 50 hawker centers in Singapore. By building interactive features such as filtering and photo display, it helps users make more effective dining decisions.</p >
-    <h3>Project Process</h3>
-    <p>1. Collect information about hawker centers in Singapore, including their locations, types of stalls, sizes, and operating hours.</p >
-    <p>2. Mark hawker centers on a map of Singapore and use colors to distinguish between different size and rating levels (for example, gold for centers with more than 30 stalls and green for centers with 10 or fewer stalls).</p >
-    <p>3. Add filtering options to allow users to select their preferred criteria (such as proximity to Bedok, golden scale, or specific cuisine, such as Hainanese chicken rice).</p >
-    <p>4. When the user clicks on a snack center on the map, photos of the overall stall scale, names of all stalls, and detailed addresses will be displayed.</p >
-    <ul>
-        <h2></h2>
-    </ul>
+    <h1>Singapore PSI (Pollutant Standards Index) - Realtime Data</h1>
+    <button id="refresh-btn" onclick="fetchPSIData()">Refresh Data</button>
+    <div id="timestamp-info" class="timestamp-info"></div>
+    <div id="content">
+        <p class="loading">Loading data...</p>
+    </div>
+
+    <script>
+        const API_URL = 'https://api.data.gov.sg/v1/environment/psi';
+
+        async function fetchPSIData() {
+            const contentDiv = document.getElementById('content');
+            contentDiv.innerHTML = '<p class="loading">Loading data...</p>';
+
+            try {
+                const response = await fetch(API_URL);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                const data = await response.json();
+                displayData(data);
+            } catch (error) {
+                contentDiv.innerHTML = `<p class="error">Error fetching data: ${error.message}</p>`;
+            }
+        }
+
+        function displayData(data) {
+            const contentDiv = document.getElementById('content');
+            const timestampDiv = document.getElementById('timestamp-info');
+
+            if (!data.items || data.items.length === 0) {
+                contentDiv.innerHTML = '<p class="error">No data available</p>';
+                return;
+            }
+
+            const item = data.items[0];
+            const readings = item.readings;
+
+            // Display timestamp information
+            timestampDiv.innerHTML = `
+                <strong>Data Timestamp:</strong> ${item.timestamp}<br>
+                <strong>Last Updated:</strong> ${item.update_timestamp}
+            `;
+
+            // Define regions (columns)
+            const regions = ['national', 'north', 'south', 'east', 'west', 'central'];
+
+            // Build table HTML
+            let tableHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Reading Type</th>
+                            ${regions.map(r => `<th>${capitalizeFirst(r)}</th>`).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            // Iterate through all readings (12 types)
+            for (const [readingName, regionValues] of Object.entries(readings)) {
+                tableHTML += `
+                    <tr>
+                        <td class="reading-name">${formatReadingName(readingName)}</td>
+                        ${regions.map(r => `<td>${regionValues[r] !== undefined ? regionValues[r] : 'N/A'}</td>`).join('')}
+                    </tr>
+                `;
+            }
+
+            tableHTML += '</tbody></table>';
+            contentDiv.innerHTML = tableHTML;
+        }
+
+        function capitalizeFirst(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+
+        function formatReadingName(name) {
+            return name.split('_').map(capitalizeFirst).join(' ');
+        }
+
+        // Fetch data when page loads
+        fetchPSIData();
+    </script>
 </body>
 </html>
